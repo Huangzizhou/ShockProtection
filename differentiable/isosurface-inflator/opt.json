@@ -1,0 +1,53 @@
+{
+    "variable_to_simulation": [
+        {
+            "type": "sdf-shape",
+            "state": 0,
+            "composition": [
+                {
+                    "type": "sdf-to-mesh",
+                    "wire_path": "/home/zizhou/adjoint/differentiable/isosurface-inflator/bistable.obj",
+                    "options": {
+                        "maxArea": 1e-4,
+                        "marchingSquaresGridSize": 1024,
+                        "forceMSGridSize": true
+                    }
+                }
+            ]
+        }
+    ],
+    "parameters": [
+        {
+            "initial": [0.3, 0.10, 0.333333, 0.40, 0.666667, 0.50, 0.50, 0.75, 0.60, 0.666667, 0.90, 0.333333, 0.30, 0.20, 0.05, 0.05, 0.30, 0.20, 0.05, 0.05, 0.02,0.02,0.02,0.02,0.02,0.02,0.02,0.02],
+            "number": 28
+        }
+    ],
+    "functionals": [
+        {
+            "type": "stress_norm",
+            "state": 0,
+            "volume_selection": []
+        },
+        {
+            "type": "volume",
+            "state": 0,
+            "weight": 0,
+            "volume_selection": []
+        }
+    ],
+    "output": {
+        "log": {
+            "level": "debug"
+        }
+    },
+    "solver": {
+        "nonlinear": {
+            "debug_fd_eps": 1e-3
+        }
+    },
+    "states": [
+        {
+            "path": "state.json"
+        }
+    ]
+}

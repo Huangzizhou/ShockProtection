@@ -131,7 +131,11 @@
             "macro-strain",
             "initial",
             "dirichlet",
-            "pressure"
+            "pressure",
+            "sdf-shape",
+            "periodic-shape-scale",
+            "periodic-shape-affine",
+            "sdf-periodic-shape"
         ]
     },
     {
@@ -235,12 +239,64 @@
         ]
     },
     {
-        "pointer": "/variable_to_simulation/*/mesh",
-        "type": "string"
+        "pointer": "/variable_to_simulation/*",
+        "type_name": "sdf-shape",
+        "type": "object",
+        "required": [
+            "state",
+            "type",
+            "composition"
+        ],
+        "optional": [
+            "composite_map_type",
+            "composite_map_indices"
+        ]
     },
     {
-        "pointer": "/variable_to_simulation/*/mesh_id",
-        "type": "int"
+        "pointer": "/variable_to_simulation/*",
+        "type_name": "sdf-periodic-shape",
+        "type": "object",
+        "required": [
+            "state",
+            "type",
+            "composition"
+        ],
+        "optional": [
+            "composite_map_type",
+            "composite_map_indices"
+        ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*",
+        "type_name": "periodic-shape-scale",
+        "type": "object",
+        "required": [
+            "state",
+            "type",
+            "composition"
+        ],
+        "optional": [
+            "composite_map_type",
+            "composite_map_indices"
+        ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*",
+        "type_name": "periodic-shape-affine",
+        "type": "object",
+        "required": [
+            "state",
+            "type",
+            "composition"
+        ],
+        "optional": [
+            "composite_map_type",
+            "composite_map_indices"
+        ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*/mesh",
+        "type": "string"
     },
     {
         "pointer": "/variable_to_simulation/*/state",
@@ -274,8 +330,103 @@
             "append-const",
             "linear-filter",
             "bounded-biharmonic-weights",
-            "scalar-velocity-parametrization"
+            "scalar-velocity-parametrization",
+            "custom-symmetric",
+            "sdf-to-mesh",
+            "periodic-mesh-tile",
+            "mesh-affine",
+            "matrix-product"
         ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*",
+        "type_name": "matrix-product",
+        "type": "object",
+        "required": [
+            "matrix",
+            "left_multiply"
+        ],
+        "doc": "Multiply the input vector with a constant matrix"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/matrix",
+        "type": "list"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/matrix/*",
+        "type": "list"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/matrix/*/*",
+        "type": "float"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/left_multiply",
+        "type": "bool"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*",
+        "type_name": "sdf-to-mesh",
+        "type": "object",
+        "required": [
+            "wire_path"
+        ],
+        "optional": [
+            "options",
+            "use_volume_velocity"
+        ],
+        "doc": "Append a list of constants at the end of the input vector"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/use_volume_velocity",
+        "type": "bool",
+        "default": false
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/wire_path",
+        "type": "string"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options",
+        "type": "object",
+        "optional": [
+            "maxArea",
+            "symmetry",
+            "marchingSquaresGridSize",
+            "forceMSGridSize",
+            "forceConsistentInterfaceMesh"
+        ],
+        "default": null
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options/maxArea",
+        "type": "float",
+        "default": 1e-3
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options/symmetry",
+        "type": "string",
+        "default": "doubly_periodic",
+        "options": [
+            "doubly_periodic",
+            "orthotropic",
+            "symmetric"
+        ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options/marchingSquaresGridSize",
+        "type": "int",
+        "default": 256
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options/forceMSGridSize",
+        "type": "bool",
+        "default": true
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/options/forceConsistentInterfaceMesh",
+        "type": "bool",
+        "default": false
     },
     {
         "pointer": "/variable_to_simulation/*/composition/*",

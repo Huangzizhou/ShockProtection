@@ -277,4 +277,80 @@ namespace polyfem::solver
 		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
 		Eigen::VectorXd periodic_mesh_representation;
 	};
+
+	// For optimizing the shape of a parametrized SDF. The mesh connectivity may change when SDF changes, so a new mesh is loaded whenever the optimization variable changes.
+	// state variable dof = dim * n_vertices
+	class SDFShapeVariableToSimulation : public ShapeVariableToSimulation
+	{
+	public:
+		SDFShapeVariableToSimulation(const std::vector<std::shared_ptr<State>> &states, const CompositeParametrization &parametrization);
+		virtual ~SDFShapeVariableToSimulation() {}
+
+		std::string name() const override { return "sdf-shape"; }
+
+		void update(const Eigen::VectorXd &x) override;
+
+	protected:
+		const int mesh_id_ = 0;
+		const std::string mesh_path_;
+	};
+
+	// Combination of SDFShapeVariableToSimulation and PeriodicShapeVariableToSimulation, to optimize the shape of a SDF.
+	// Assuming the mesh of this SDF is periodic and the periodic surface should be the intersection of the domain with its bounding box faces
+	// state variable dof = dim * n_periodic_vertices
+	class SDFPeriodicShapeVariableToSimulation : public PeriodicShapeVariableToSimulation
+	{
+	public:
+		SDFPeriodicShapeVariableToSimulation(const std::vector<std::shared_ptr<State>> &states, const CompositeParametrization &parametrization);
+		virtual ~SDFPeriodicShapeVariableToSimulation() {}
+
+		std::string name() const override { return "sdf-periodic-shape"; }
+
+		void update(const Eigen::VectorXd &x) override;
+		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
+
+
+	protected:
+		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
+		Eigen::VectorXd periodic_mesh_representation;
+		const std::string mesh_path_;
+	};
+
+	// To optimize the scaling of a periodic mesh, can be used together with SDFPeriodicShapeVariableToSimulation
+	// state variable dof = dim
+	class PeriodicShapeScaleVariableToSimulation : public PeriodicShapeVariableToSimulation
+	{
+	public:
+		PeriodicShapeScaleVariableToSimulation(const std::vector<std::shared_ptr<State>> &states, const CompositeParametrization &parametrization);
+		virtual ~PeriodicShapeScaleVariableToSimulation() {}
+
+		std::string name() const override { return "periodic-shape-scale"; }
+
+		void update(const Eigen::VectorXd &x) override;
+		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
+	
+	protected:
+		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
+		Eigen::VectorXd periodic_mesh_representation;
+		int dim;
+	};
+
+	// To optimize the affine transformation of a periodic mesh, can be used together with SDFPeriodicShapeVariableToSimulation
+	// state variable dof = dim * dim
+	class PeriodicShapeAffineVariableToSimulation : public PeriodicShapeVariableToSimulation
+	{
+	public:
+		PeriodicShapeAffineVariableToSimulation(const std::vector<std::shared_ptr<State>> &states, const CompositeParametrization &parametrization);
+		virtual ~PeriodicShapeAffineVariableToSimulation() {}
+
+		std::string name() const override { return "periodic-shape-affine"; }
+
+		void update(const Eigen::VectorXd &x) override;
+		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
+	
+	protected:
+		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
+		Eigen::VectorXd periodic_mesh_representation;
+		int dim;
+	};
 } // namespace polyfem::solver

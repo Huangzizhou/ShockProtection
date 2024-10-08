@@ -3,6 +3,7 @@
 #include <polyfem/Common.hpp>
 #include <polyfem/utils/Logger.hpp>
 #include <polyfem/solver/DiffCache.hpp>
+#include <polyfem/solver/forms/parametrization/Parametrization.hpp>
 
 namespace polyfem
 {
@@ -18,7 +19,7 @@ namespace polyfem::solver
 {
 	class AdjointNLProblem;
 	class AdjointForm;
-	class Parametrization;
+	class MeshParametrization;
 	class VariableToSimulation;
 	class VariableToSimulationGroup;
 
@@ -42,6 +43,8 @@ namespace polyfem::solver
 		static std::shared_ptr<AdjointForm> create_simple_form(const std::string &obj_type, const std::string &param_type, const std::shared_ptr<State> &state, const json &args);
 
 		static std::shared_ptr<Parametrization> create_parametrization(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes);
+		static std::shared_ptr<MeshParametrization> create_mesh_parametrization(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes, const std::string &in_path);
+		static CompositeParametrization create_parametrizations(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes);
 
 		static std::unique_ptr<VariableToSimulation> create_variable_to_simulation(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes);
 

@@ -29,8 +29,18 @@ namespace polyfem::solver
 			return std::make_unique<PressureVariableToSimulation>(states, parametrization);
 		else if (type == "periodic-shape")
 			return std::make_unique<PeriodicShapeVariableToSimulation>(states, parametrization);
-
-		log_and_throw_adjoint_error("Invalid type of VariableToSimulation!");
+		else if (type == "sdf-shape")
+			return std::make_unique<SDFShapeVariableToSimulation>(states, parametrization);
+		else if (type == "sdf-periodic-shape")
+			return std::make_unique<SDFPeriodicShapeVariableToSimulation>(states, parametrization);
+		else if (type == "periodic-shape-scale")
+			return std::make_unique<PeriodicShapeScaleVariableToSimulation>(states, parametrization);
+		else if (type == "periodic-shape-affine")
+			return std::make_unique<PeriodicShapeAffineVariableToSimulation>(states, parametrization);
+		// else if (type == "macro-strain")
+		// 	return std::make_unique<MacroStrainVariableToSimulation>(states, parametrization);
+		else
+			log_and_throw_adjoint_error("Invalid type of VariableToSimulation!");
 		return std::unique_ptr<VariableToSimulation>();
 	}
 
@@ -643,6 +653,6 @@ namespace polyfem::solver
 	Eigen::VectorXd PeriodicShapeVariableToSimulation::apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const
 	{
 		Eigen::VectorXd mid = periodic_mesh_map->apply_jacobian(term, periodic_mesh_representation);
-		return parametrization_.apply_jacobian(mid, periodic_mesh_representation);
+		return parametrization_.apply_jacobian(mid, x);
 	}
 } // namespace polyfem::solver

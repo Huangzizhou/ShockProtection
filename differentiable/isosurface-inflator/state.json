@@ -1,0 +1,44 @@
+{
+    "geometry": [
+        {
+            "mesh": "../../data/contact/meshes/2D/simple/bar/bar198.obj",
+            "surface_selection": {
+                "threshold": 1e-8
+            },
+            "volume_selection": 1
+        }
+    ],
+    "space": {
+        "discr_order": 2,
+        "advanced": {
+            "quadrature_order": 5
+        }
+    },
+    "solver": {
+        "linear": {
+            "solver": "Eigen::PardisoLLT"
+        },
+        "adjoint_linear": {
+            "solver": "Eigen::PardisoLDLT"
+        }
+    },
+    "boundary_conditions": {
+        "dirichlet_boundary": [
+            {
+                "id": 2,
+                "value": [0, 0]
+            }
+        ],
+        "rhs": [0, 1]
+    },
+    "output": {
+        "log": {
+            "level": "debug"
+        }
+    },
+    "materials": {
+        "type": "LinearElasticity",
+        "E": 100,
+        "nu": 0.2
+    }
+}

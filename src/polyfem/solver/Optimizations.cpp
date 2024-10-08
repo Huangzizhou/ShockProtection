@@ -17,6 +17,7 @@
 #include <polyfem/solver/forms/adjoint_forms/TargetForms.hpp>
 
 #include <polyfem/solver/forms/parametrization/Parametrizations.hpp>
+#include <polyfem/solver/forms/parametrization/SDFParametrizations.hpp>
 #include <polyfem/solver/forms/parametrization/SplineParametrizations.hpp>
 
 #include <polyfem/solver/forms/adjoint_forms/ParametrizedProductForm.hpp>
@@ -364,6 +365,59 @@ namespace polyfem::solver
 		return obj;
 	}
 
+	std::shared_ptr<MeshParametrization> AdjointOptUtils::create_mesh_parametrization(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes, const std::string &in_path)
+	{
+		std::shared_ptr<MeshParametrization> map;
+		const std::string type = args["type"];
+		static int out_mesh_id = 0;
+		const std::string out_path = states[0]->resolve_output_path("out_" + std::to_string(out_mesh_id++) + ".msh");
+		adjoint_logger().debug("Parametrization {} writes mesh to {}", type, out_path);
+		if (type == "sdf-to-mesh")
+		{
+			if (!in_path.empty())
+				log_and_throw_error("SDF2Mesh shouldn't have a mesh input!");
+			map = std::make_shared<SDF2Mesh>(args["wire_path"], out_path, args["use_volume_velocity"], args["options"]);
+		}
+		else if (type == "periodic-mesh-tile")
+		{
+			Eigen::VectorXi dims = args["dimensions"];
+			map = std::make_shared<MeshTiling>(dims, in_path, out_path);
+		}
+		else if (type == "mesh-affine")
+		{
+			MatrixNd A;
+			VectorNd b;
+			mesh::construct_affine_transformation(
+				1,
+				args["transformation"],
+				VectorNd::Ones(args["dimension"]),
+				A, b);
+			map = std::make_shared<MeshAffine>(A, b, in_path, out_path);
+		}
+		else
+			log_and_throw_error("Unkown mesh parametrization {}!", type);
+
+		return map;
+	}
+
+	CompositeParametrization AdjointOptUtils::create_parametrizations(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes)
+	{
+		std::vector<std::shared_ptr<Parametrization>> map_list;
+		const std::vector<std::string> mesh_parametrization_list{"sdf-to-mesh", "periodic-mesh-tile", "mesh-affine"};
+		std::string out_path = ""; // for mesh parametrization
+		for (const auto &arg : args["composition"])
+		{
+			if (std::find(std::begin(mesh_parametrization_list), std::end(mesh_parametrization_list), arg["type"]) != std::end(mesh_parametrization_list))
+			{
+				map_list.push_back(create_mesh_parametrization(arg, states, variable_sizes, out_path));
+				out_path = map_list.back()->output_path();
+			}
+			else
+				map_list.push_back(create_parametrization(arg, states, variable_sizes));
+		}
+		return CompositeParametrization(std::move(map_list));
+	}
+
 	std::shared_ptr<Parametrization> AdjointOptUtils::create_parametrization(const json &args, const std::vector<std::shared_ptr<State>> &states, const std::vector<int> &variable_sizes)
 	{
 		std::shared_ptr<Parametrization> map;
@@ -454,11 +508,9 @@ namespace polyfem::solver
 		else
 			cur_states.push_back(states[args["state"]]);
 
-		std::vector<std::shared_ptr<Parametrization>> map_list;
-		for (const auto &arg : args["composition"])
-			map_list.push_back(create_parametrization(arg, states, variable_sizes));
+		CompositeParametrization composite_map = create_parametrizations(args, states, variable_sizes);
 
-		std::unique_ptr<VariableToSimulation> var2sim = VariableToSimulation::create(type, cur_states, CompositeParametrization(std::move(map_list)));
+		std::unique_ptr<VariableToSimulation> var2sim = VariableToSimulation::create(type, cur_states, std::move(composite_map));
 		var2sim->set_output_indexing(args);
 
 		return var2sim;

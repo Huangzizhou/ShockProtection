@@ -1,0 +1,44 @@
+{
+    "geometry": [
+        {
+            "mesh": "../periodic_x.obj",
+            "surface_selection": {
+                "threshold": 1e-6
+            }
+        }
+    ],
+    "space": {
+        "discr_order": 2,
+        "advanced": {
+            "quadrature_order": 5
+        }
+    },
+    "solver": {
+        "nonlinear": {
+            "grad_norm": 1e-7
+        },
+        "linear": {
+            "solver": "Eigen::PardisoLLT"
+        },
+        "adjoint_linear": {
+            "solver": "Eigen::PardisoLDLT"
+        }
+    },
+    "boundary_conditions": {
+        "periodic_boundary": {
+            "enabled": true,
+            "linear_displacement_offset": [[0, 0],[0, 0.1]],
+            "fixed_macro_strain": [3]
+        }
+    },
+    "output": {
+        "log": {
+            "level": "warning"
+        }
+    },
+    "materials": {
+        "type": "NeoHookean",
+        "E": 100,
+        "nu": 0.2
+    }
+}

@@ -12,6 +12,7 @@ set(test_sources
   test_collision_proxy.cpp
   test_form_derivatives.cpp
   test_geometry_utils.cpp
+  test_inflator.cpp
   test_hdf5.cpp
   test_interpolation.cpp
   test_matrix.cpp

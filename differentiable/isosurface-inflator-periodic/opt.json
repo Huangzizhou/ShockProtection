@@ -1,0 +1,66 @@
+{
+    "variable_to_simulation": [
+        {
+            "type": "sdf-periodic-shape",
+            "state": 0,
+            "composition": [
+                {
+                    "type": "slice",
+                    "from": 1,
+                    "to": 31
+                },
+                {
+                    "type": "sdf-to-mesh",
+                    "wire_path": "~/microstructures/2D/0038.obj",
+                    "options": {
+                        "maxArea": 1e-4,
+                        "marchingSquaresGridSize": 512,
+                        "forceMSGridSize": true,
+                        "forceConsistentInterfaceMesh": true,
+                        "symmetry": "symmetric"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "periodic-shape-scale",
+            "state": 0,
+            "composition": [
+                {
+                    "type": "slice",
+                    "from": 0,
+                    "to": 1
+                },
+                {
+                    "type": "append-const",
+                    "value": 1,
+                    "size": 1,
+                    "start": 0
+                }
+            ]
+        }
+    ],
+    "parameters": [
+        {
+            "initial": [0.611017356746852, 0.4819610805667774, 0.5, 0.3071925954065209, 0.5356515069884431, 0.5, 0.451267551520096, 0.8008697408939716, 0.5, 0.7085045208483675, 0.5, 0.5, 0.4683116536863193, 0.2469063894658498, 0.5, 0.2897825682856816, 0.5, 0.0469817561447417, 0.0203156667737298, 0.0471852383750444, 0.0233000798212136, 0.1454852422857906, 0.0782110583430857, 0.0232201794235553, 0.015, 0.015, 0.015, 0.015, 0.0957623347061982, 0.015, 0.015],
+            "number": 31
+        }
+    ],
+    "functionals": [
+        {
+            "type": "stress",
+            "dimensions": [1, 1],
+            "state": 0
+        }
+    ],
+    "solver": {
+        "nonlinear": {
+            "debug_fd_eps": 1e-3
+        }
+    },
+    "states": [
+        {
+            "path": "state.json"
+        }
+    ]
+}
