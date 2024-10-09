@@ -151,6 +151,7 @@ namespace polyfem
 			const double max_weight = args["solver"]["augmented_lagrangian"]["max_weight"];
 			const double eta_tol = args["solver"]["augmented_lagrangian"]["eta"];
 			const double scaling = args["solver"]["augmented_lagrangian"]["scaling"];
+			const double error_tol = args["solver"]["augmented_lagrangian"]["error"];
 			double al_weight = initial_weight;
 
 			Eigen::VectorXd tmp_sol = homo_problem->extended_to_reduced(extended_sol);
@@ -168,7 +169,8 @@ namespace polyfem
 			while (force_al
 				   || !std::isfinite(homo_problem->value(reduced_sol))
 				   || !homo_problem->is_step_valid(tmp_sol, reduced_sol)
-				   || !homo_problem->is_step_collision_free(tmp_sol, reduced_sol))
+				   || !homo_problem->is_step_collision_free(tmp_sol, reduced_sol)
+				   || current_error > error_tol)
 			{
 				force_al = false;
 				homo_problem->line_search_end();

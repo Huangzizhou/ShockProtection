@@ -1,0 +1,93 @@
+{
+    "space": {
+        "discr_order": 2,
+        "advanced": {
+            "quadrature_order": 5
+        }
+    },
+    "geometry": [
+        {
+            "mesh": "object.obj",
+            "enabled": true,
+            "volume_selection": 1,
+            "surface_selection": {
+                "threshold": 1e-7
+            }
+        }
+    ],
+    "contact": {
+        "enabled": true,
+        "dhat": 1e-3,
+        "periodic": true,
+        "use_convergent_formulation": true
+    },
+    "boundary_conditions": {
+        "periodic_boundary": {
+            "enabled": true,
+            "linear_displacement_offset": [[0, 0], [0, -0.2]],
+            "fixed_macro_strain": [1,2,3]
+        }
+    },
+    "materials": [{
+        "id": 1,
+        "E": 1e6,
+        "nu": 0.3,
+        "rho": 100,
+        "type": "NeoHookean"
+    }],
+    "solver": {
+        "linear": {
+            "solver": "Eigen::PardisoLLT"
+        },
+        "adjoint_linear": {
+            "solver": "Eigen::PardisoLLT"
+        },
+        "augmented_lagrangian": {
+            "initial_weight": 1e4,
+            "max_weight": 1e6,
+            "error": 1e-8,
+            "eta": 0.9,
+            "nonlinear": {
+                "advanced": {
+                    "f_delta_step_tol": 5
+                },
+                "grad_norm": 1e-3,
+                "max_iterations": 50
+            }
+        },
+        "nonlinear": {
+            "line_search": {
+                "method": "Backtracking",
+                "use_grad_norm_tol": 1e-3
+            },
+            "Newton": {
+                "use_psd_projection": false,
+                "reg_weight_inc": 100,
+                "use_psd_projection_in_regularized": false
+            },
+            "advanced": {
+                "f_delta": 1e-13,
+                "f_delta_step_tol": 10
+            },
+            "grad_norm": 1e-8,
+            "max_iterations": 1000
+        },
+        "contact": {
+            "barrier_stiffness": 1e5
+        }
+    },
+    "output": {
+        "log": {
+            "level": "debug"
+        },
+        "paraview": {
+            "file_name": "out.vtu",
+            "surface": false,
+            "volume": true,
+            "options": {
+                "tensor_values": true,
+                "material": true
+            }
+        }
+    }
+}

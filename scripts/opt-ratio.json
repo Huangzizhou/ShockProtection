@@ -1,0 +1,124 @@
+{
+    "parameters": [
+        {
+            "initial": [1, 1, 0.5     ,0.45    ,0.5     ,0.55    ,0.11    ,0.07    ,0.07    ,0.01    ,0.01    ,0.01]
+        }
+    ],
+    "variable_to_simulation": [
+        {
+            "type": "sdf-periodic-shape",
+            "state": [0,1,2],
+            "mesh": "tmp-unit.msh",
+            "composition": [
+                {
+                    "type": "slice",
+                    "from": 2,
+                    "to": 30
+                },
+                {
+                    "type": "sdf-to-mesh",
+                    "wire_path": "hour-glass.obj",
+                    "options": {
+                        "maxArea": 5e-4,
+                        "forceConsistentInterfaceMesh": false,
+                        "marchingSquaresGridSize": 256,
+                        "forceMSGridSize": true
+                    }
+                }
+            ]
+        },
+        {
+            "type": "periodic-shape-scale",
+            "state": [0,1,2],
+            "composition": [
+                {
+                    "type": "slice",
+                    "from": 0,
+                    "to": 2
+                }
+            ]
+        }
+    ],
+    "output": {
+        "save_frequency": 1,
+        "log": {
+            "level": "trace"
+        },
+        "solution": "sol.txt"
+    },
+    "solver": {
+        "advanced": {
+            "solve_in_parallel": false,
+            "solve_in_order": [],
+            "better_initial_guess": true
+        },
+        "nonlinear": {
+            "solver": "L-BFGS-B",
+            "max_iterations": 100,
+            "grad_norm": 1e-4,
+            "line_search": {
+                "method": "Backtracking",
+                "min_step_size": 1e-5
+            },
+            "advanced": {
+                "f_delta": 1e-8
+            },
+            "box_constraints": {
+                "bounds": [1e-2, 0.99],
+                "max_change": 0.01
+            }
+        }
+    },
+    "functionals": [
+        {
+            "type": "soft_constraint",
+            "soft_bound": [1, 1],
+            "power": 4,
+            "objective":
+            {
+                "type": "stress",
+                "print_energy": "stress-1",
+                "dimensions": [1, 1],
+                "state": 0,
+                "weight": -1e-4
+            }
+        },
+        {
+            "type": "soft_constraint",
+            "soft_bound": [1, 1],
+            "power": 4,
+            "objective":
+            {
+                "type": "stress",
+                "print_energy": "stress-2",
+                "dimensions": [1, 1],
+                "state": 1,
+                "weight": -1e-4
+            }
+        },
+        {
+            "type": "soft_constraint",
+            "soft_bound": [1, 1],
+            "power": 4,
+            "objective":
+            {
+                "type": "stress",
+                "print_energy": "stress-3",
+                "dimensions": [1, 1],
+                "state": 2,
+                "weight": -1e-4
+            }
+        }
+    ],
+    "states": [
+        {
+            "path": "state-1.json"
+        },
+        {
+            "path": "state-2.json"
+        },
+        {
+            "path": "state-3.json"
+        }
+    ]
+}
