@@ -15,7 +15,7 @@ The code is only tested on Linux. To run the code:
     git clone --recurse-submodules git@github.com:Huangzizhou/ShockProtection.git
 
     # Compile the inflator code
-    cd inflator
+    cd ShockProtection/inflator
     mkdir build
     cd build
     cmake ..
