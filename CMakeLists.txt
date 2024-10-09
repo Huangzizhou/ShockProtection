@@ -145,7 +145,7 @@ target_compile_definitions(polyfem PUBLIC POLYFEM_INPUT_SPEC="${POLYFEM_JSON_SPE
 target_compile_definitions(polyfem PUBLIC POLYFEM_OPT_INPUT_SPEC="${POLYFEM_JSON_SPEC_DIR}/opt-input-spec.json")
 target_compile_definitions(polyfem PUBLIC POLYFEM_OBJECTIVE_INPUT_SPEC="${POLYFEM_JSON_SPEC_DIR}/objective-spec.json")
 
-target_compile_definitions(polyfem PUBLIC INFLATOR_BINARY="/home/zizhou/microstructures/build/isosurface_inflator/isosurface_cli")
+target_compile_definitions(polyfem PUBLIC INFLATOR_BINARY="${PROJECT_SOURCE_DIR}/inflator/build/isosurface_inflator/isosurface_cli")
 
 if (MSVC)
     add_compile_options(/bigobj)

@@ -6,7 +6,7 @@
             "composition": [
                 {
                     "type": "sdf-to-mesh",
-                    "wire_path": "/home/zizhou/adjoint/differentiable/isosurface-inflator/bistable.obj",
+                    "wire_path": "bistable.obj",
                     "options": {
                         "maxArea": 1e-4,
                         "marchingSquaresGridSize": 1024,

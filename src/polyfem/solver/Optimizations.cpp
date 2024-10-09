@@ -376,7 +376,8 @@ namespace polyfem::solver
 		{
 			if (!in_path.empty())
 				log_and_throw_error("SDF2Mesh shouldn't have a mesh input!");
-			map = std::make_shared<SDF2Mesh>(args["wire_path"], out_path, args["use_volume_velocity"], args["options"]);
+			map = std::make_shared<SDF2Mesh>(utils::resolve_path(args["wire_path"], states[0]->args["root_path"], true), 
+												out_path, args["use_volume_velocity"], args["options"]);
 		}
 		else if (type == "periodic-mesh-tile")
 		{

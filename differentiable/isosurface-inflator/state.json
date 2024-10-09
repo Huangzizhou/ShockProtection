@@ -1,7 +1,7 @@
 {
     "geometry": [
         {
-            "mesh": "../../data/contact/meshes/2D/simple/bar/bar198.obj",
+            "mesh": "../periodic_x.obj",
             "surface_selection": {
                 "threshold": 1e-8
             },

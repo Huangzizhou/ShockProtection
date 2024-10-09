@@ -182,7 +182,6 @@ namespace polyfem::solver
 	{
 		assert(term.size() > dim * dim);
 		Eigen::MatrixXd affine_term = utils::unflatten(term.tail(dim * dim), dim).transpose();
-		std::cout << affine_term << std::endl;
 		return parametrization_.apply_jacobian(affine_term.diagonal(), x);
 	}
 
