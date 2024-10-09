@@ -56,6 +56,7 @@ namespace polyfem::solver
 
 		const bool solve_in_parallel;
 		std::vector<int> solve_in_order;
+		std::vector<int> initial_guess_id;
 
 		int save_iter = 0;
 

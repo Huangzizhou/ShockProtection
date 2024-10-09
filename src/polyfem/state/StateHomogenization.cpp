@@ -130,6 +130,9 @@ namespace polyfem
 
 		if (sol.size() == extended_sol.size())
 			extended_sol = sol;
+		
+		if (initial_guess.size() == extended_sol.size())
+			extended_sol = initial_guess;
 
 		const auto &fixed_entry = macro_strain_constraint.get_fixed_entry();
 		homo_problem->set_fixed_entry({});
@@ -276,7 +279,7 @@ namespace polyfem
 	{
 		bool is_static = !is_param_valid(args, "time");
 		if (!is_static && !args["time"]["quasistatic"])
-			log_and_throw_error("Transient homogenization can only do quasi-static!");
+			log_and_throw_error("Transient homogenization can only do quasi-static, inertia is not implemented!");
 
 		init_homogenization_solve(t0);
 

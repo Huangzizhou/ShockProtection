@@ -4,6 +4,7 @@
 #include <polyfem/utils/Logger.hpp>
 #include <polyfem/utils/MaybeParallelFor.hpp>
 #include <polyfem/utils/Timer.hpp>
+#include <polyfem/io/Evaluator.hpp>
 #include <polyfem/io/OBJWriter.hpp>
 #include <polyfem/io/MshWriter.hpp>
 #include <polyfem/State.hpp>
@@ -144,11 +145,15 @@ namespace polyfem::solver
 		solve_in_order.clear();
 		{
 			Graph G(all_states.size());
+			initial_guess_id.assign(all_states.size(), -1);
 			for (int k = 0; k < all_states.size(); k++)
 			{
 				auto &arg = args["states"][k];
 				if (arg["initial_guess"].get<int>() >= 0)
+				{
 					G.addEdge(arg["initial_guess"].get<int>(), k);
+					initial_guess_id[k] = arg["initial_guess"].get<int>();
+				}
 			}
 
 			solve_in_order = G.topologicalSort();
@@ -441,16 +446,42 @@ namespace polyfem::solver
 		{
 			adjoint_logger().info("Run simulations in serial...");
 
-			Eigen::MatrixXd sol, pressure; // solution is also cached in state
+			std::vector<Eigen::MatrixXd> sols; // solution is also cached in state
+			sols.resize(all_states_.size());
 			for (int i : solve_in_order)
 			{
 				auto state = all_states_[i];
 				if (active_state_mask[i] || state->diff_cached.size() == 0)
 				{
+					// generate good initial guess for quasi-static problem
+					const int dependent = initial_guess_id[i];
+					if (dependent >= 0)
+					{
+						adjoint_logger().info("State {} uses state {} as initial guess", i, dependent);
+						auto &dependent_state = all_states_[dependent];
+						if (dependent_state->is_homogenization() && (state->bases.size() % dependent_state->bases.size() == 0))
+						{
+							const int dim = state->mesh->dimension();
+							state->initial_guess.setZero(state->ndof() + dim * dim);
+							Eigen::MatrixXd disp_grad = dependent_state->diff_cached.disp_grad(-1);
+							Eigen::MatrixXd periodic_fluc = sols[dependent] - io::Evaluator::generate_linear_field(dependent_state->n_bases, dependent_state->mesh_nodes, disp_grad);
+							for (int e = 0; e < state->bases.size(); e++)
+							{
+								auto &bs1 = dependent_state->bases[e % dependent_state->bases.size()].bases;
+								auto &bs2 = state->bases[e].bases;
+								for (int i = 0; i < bs1.size(); i++)
+									state->initial_guess.middleRows(bs2[i].global()[0].index * dim, dim) = periodic_fluc.middleRows(bs1[i].global()[0].index * dim, dim);
+							}
+							state->initial_guess.bottomRows(dim * dim) = utils::flatten(disp_grad);
+						}
+					}
+
 					state->assemble_rhs();
 					state->assemble_mass_mat();
 
-					state->solve_problem(sol, pressure);
+					Eigen::MatrixXd pressure;
+					state->solve_problem(sols[i], pressure);
+
 				}
 			}
 		}
