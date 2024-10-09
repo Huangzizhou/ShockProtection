@@ -74,7 +74,8 @@ namespace polyfem::solver
 			const NLHomoProblem &homo_problem = *std::dynamic_pointer_cast<NLHomoProblem>(state_.solve_data.nl_problem);
 			const Eigen::VectorXd full_shape_deriv = homo_problem.reduced_to_full_shape_derivative(state_.diff_cached.disp_grad(), adjoint_rhs);
 			term += utils::flatten(utils::unflatten(full_shape_deriv, state_.mesh->dimension())(state_.primitive_to_node(), Eigen::all));
-
+			term = state_.periodic_mesh_map->apply_jacobian(term, state_.periodic_mesh_representation);
+			
 			return term;
 		});
 	}

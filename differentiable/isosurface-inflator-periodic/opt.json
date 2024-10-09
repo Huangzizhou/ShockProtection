@@ -14,7 +14,7 @@
                     "wire_path": "~/microstructures/2D/0038.obj",
                     "options": {
                         "maxArea": 1e-4,
-                        "marchingSquaresGridSize": 512,
+                        "marchingSquaresGridSize": 1024,
                         "forceMSGridSize": true,
                         "forceConsistentInterfaceMesh": true,
                         "symmetry": "symmetric"

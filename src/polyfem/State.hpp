@@ -29,6 +29,7 @@
 #include <polyfem/utils/JSONUtils.hpp>
 #include <polyfem/utils/Logger.hpp>
 #include <polyfem/assembler/PeriodicBoundary.hpp>
+#include <polyfem/solver/forms/parametrization/PeriodicMeshToMesh.hpp>
 
 #include <polyfem/io/OutData.hpp>
 
@@ -392,6 +393,9 @@ namespace polyfem
 			return args["boundary_conditions"]["periodic_boundary"]["enabled"].get<bool>();
 		}
 
+		std::unique_ptr<solver::PeriodicMeshToMesh> periodic_mesh_map; // chain rule for periodic mesh optimization
+		Eigen::VectorXd periodic_mesh_representation;
+
 		/// @brief Solve the linear problem with the given solver and system.
 		/// @param solver Linear solver.
 		/// @param A Linear system matrix.
@@ -712,6 +716,8 @@ namespace polyfem
 		{
 			return args["boundary_conditions"]["periodic_boundary"]["linear_displacement_offset"].size() > 0;
 		}
+
+		Eigen::VectorXd initial_guess;
 	};
 
 } // namespace polyfem

@@ -109,7 +109,7 @@ namespace polyfem::solver
 				state->args["geometry"].erase("transformation");
 			}
 
-			state->mesh = nullptr;
+			state->mesh.reset();
 			state->assembler->update_lame_params(Eigen::MatrixXd(), Eigen::MatrixXd());
 
 			json in_args = state->args;
@@ -124,33 +124,33 @@ namespace polyfem::solver
 				Eigen::MatrixXd V(state->mesh->n_vertices(), state->mesh->dimension());
 				for (int i = 0; i < state->mesh->n_vertices(); i++)
 					V.row(i) = state->mesh->point(i);
-				periodic_mesh_map = std::make_unique<PeriodicMeshToMesh>(V);
-				periodic_mesh_representation = periodic_mesh_map->inverse_eval(utils::flatten(V));
+				state->periodic_mesh_map = std::make_unique<PeriodicMeshToMesh>(V);
+				state->periodic_mesh_representation = state->periodic_mesh_map->inverse_eval(utils::flatten(V));
 			}
 		}
 	}
     Eigen::VectorXd SDFPeriodicShapeVariableToSimulation::apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const
     {
-        const int dim = periodic_mesh_map->dim();
-        const int n_full_verts = periodic_mesh_map->n_full_dof();
-        const int n_periodic_verts = periodic_mesh_map->n_periodic_dof();
+		const auto &state = *(states_[0]);
+        const int dim = state.periodic_mesh_map->dim();
+        const int n_full_verts = state.periodic_mesh_map->n_full_dof();
+        const int n_periodic_verts = state.periodic_mesh_map->n_periodic_dof();
 
-		const Eigen::VectorXd mid = periodic_mesh_map->apply_jacobian(term, periodic_mesh_representation);
-
+		assert(term.size() == state.periodic_mesh_map->input_size());
         Eigen::VectorXd full_term;
         full_term.setZero(n_full_verts * dim);
         Eigen::Matrix<bool, -1, 1> visited_mask;
         visited_mask.setZero(n_periodic_verts);
         for (int i = 0; i < n_full_verts; i++)
         {
-            int i_periodic = periodic_mesh_map->full_to_periodic(i);
+            int i_periodic = state.periodic_mesh_map->full_to_periodic(i);
             if (!visited_mask(i_periodic))
-                full_term.segment(i * dim, dim) = mid.segment(i_periodic * dim, dim);
+                full_term.segment(i * dim, dim) = term.segment(i_periodic * dim, dim);
             visited_mask(i_periodic) = true;
         }
         
         return parametrization_.apply_jacobian(full_term, x);
-    }
+	}
 
 	PeriodicShapeScaleVariableToSimulation::PeriodicShapeScaleVariableToSimulation(const std::vector<std::shared_ptr<State>> &states, const CompositeParametrization &parametrization) : PeriodicShapeVariableToSimulation(states, parametrization)
 	{
@@ -171,18 +171,18 @@ namespace polyfem::solver
 		
 		for (auto state : states_)
 		{
-			assert(periodic_mesh_representation.size() > dim * dim);
-			periodic_mesh_representation.tail(dim * dim) = Eigen::Map<Eigen::VectorXd>(affine.data(), dim * dim, 1);
-		
-			auto V = utils::unflatten(periodic_mesh_map->eval(periodic_mesh_representation), dim);
+			assert(state->periodic_mesh_representation.size() > dim * dim);
+			state->periodic_mesh_representation.tail(dim * dim) = Eigen::Map<Eigen::VectorXd>(affine.data(), dim * dim, 1);
+			auto V = utils::unflatten(state->periodic_mesh_map->eval(state->periodic_mesh_representation), dim);
 			for (int i = 0; i < V.rows(); i++)
 				state->set_mesh_vertex(i, V.row(i));
 		}
 	}
 	Eigen::VectorXd PeriodicShapeScaleVariableToSimulation::apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const
 	{
-		assert(x.size() > dim * dim);
+		assert(term.size() > dim * dim);
 		Eigen::MatrixXd affine_term = utils::unflatten(term.tail(dim * dim), dim).transpose();
+		std::cout << affine_term << std::endl;
 		return parametrization_.apply_jacobian(affine_term.diagonal(), x);
 	}
 
@@ -204,10 +204,10 @@ namespace polyfem::solver
 		
 		for (auto state : states_)
 		{
-			assert(periodic_mesh_representation.size() > dim * dim);
-			periodic_mesh_representation.tail(dim * dim) = y;
+			assert(state->periodic_mesh_representation.size() > dim * dim);
+			state->periodic_mesh_representation.tail(dim * dim) = y;
 		
-			auto V = utils::unflatten(periodic_mesh_map->eval(periodic_mesh_representation), dim);
+			auto V = utils::unflatten(state->periodic_mesh_map->eval(state->periodic_mesh_representation), dim);
 			for (int i = 0; i < V.rows(); i++)
 				state->set_mesh_vertex(i, V.row(i));
 		}

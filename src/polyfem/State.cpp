@@ -41,7 +41,6 @@
 
 #include <polyfem/utils/Logger.hpp>
 #include <polyfem/utils/Timer.hpp>
-
 #include <polysolve/linear/FEMSolver.hpp>
 
 #include <polyfem/io/OBJWriter.hpp>
@@ -893,6 +892,16 @@ namespace polyfem
 						log_and_throw_error("Invalid size of periodic directions!");
 					tile_offset.col(d) = tmp;
 				}
+			}
+
+			if (periodic_mesh_map)
+			{	
+				logger().debug("Periodic Mesh vertices: {}", periodic_mesh_map->n_periodic_dof());
+				
+				if (periodic_mesh_representation.size() != periodic_mesh_map->input_size())
+					log_and_throw_error("Inconsistent mesh and periodic representation! {} vs {}", periodic_mesh_representation.size(), periodic_mesh_map->input_size());
+				else // mesh is a parallelogram
+					tile_offset = utils::unflatten(periodic_mesh_representation.tail(dim * dim), dim).transpose();
 			}
 
 			periodic_bc = std::make_shared<PeriodicBoundary>(problem->is_scalar(), n_bases, bases, mesh_nodes, tile_offset, args["boundary_conditions"]["periodic_boundary"]["tolerance"].get<double>());

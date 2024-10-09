@@ -2,7 +2,6 @@
 
 #include <polyfem/solver/forms/parametrization/Parametrization.hpp>
 #include <polyfem/solver/AdjointTools.hpp>
-#include <polyfem/solver/forms/parametrization/PeriodicMeshToMesh.hpp>
 
 #include <iostream>
 
@@ -270,12 +269,6 @@ namespace polyfem::solver
 		Eigen::VectorXd inverse_eval() override;
 
 		void update(const Eigen::VectorXd &x) override;
-
-		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
-
-	protected:
-		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
-		Eigen::VectorXd periodic_mesh_representation;
 	};
 
 	// For optimizing the shape of a parametrized SDF. The mesh connectivity may change when SDF changes, so a new mesh is loaded whenever the optimization variable changes.
@@ -290,7 +283,7 @@ namespace polyfem::solver
 
 		void update(const Eigen::VectorXd &x) override;
 
-	protected:
+	private:
 		const int mesh_id_ = 0;
 		const std::string mesh_path_;
 	};
@@ -309,10 +302,7 @@ namespace polyfem::solver
 		void update(const Eigen::VectorXd &x) override;
 		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
 
-
-	protected:
-		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
-		Eigen::VectorXd periodic_mesh_representation;
+	private:
 		const std::string mesh_path_;
 	};
 
@@ -329,9 +319,7 @@ namespace polyfem::solver
 		void update(const Eigen::VectorXd &x) override;
 		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
 	
-	protected:
-		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
-		Eigen::VectorXd periodic_mesh_representation;
+	private:
 		int dim;
 	};
 
@@ -348,9 +336,7 @@ namespace polyfem::solver
 		void update(const Eigen::VectorXd &x) override;
 		Eigen::VectorXd apply_parametrization_jacobian(const Eigen::VectorXd &term, const Eigen::VectorXd &x) const override;
 	
-	protected:
-		std::unique_ptr<PeriodicMeshToMesh> periodic_mesh_map;
-		Eigen::VectorXd periodic_mesh_representation;
+	private:
 		int dim;
 	};
 } // namespace polyfem::solver

@@ -119,10 +119,10 @@ TEST_CASE("isosurface-inflator-periodic", "[test_adjoint]")
 	Eigen::VectorXd x = opt_args["parameters"][0]["initial"];
 
 	auto nl_problem = std::make_shared<AdjointNLProblem>(obj, variable_to_simulations, states, opt_args);
-	nl_problem->solution_changed(x);
+	// nl_problem->solution_changed(x);
 
 	verify_adjoint(*nl_problem, x, opt_args["solver"]["nonlinear"]["debug_fd_eps"].get<double>(), 1e-3);
-	// verify_adjoint_expensive(variable_to_simulations, *obj, state, x, opt_args["solver"]["nonlinear"]["debug_fd_eps"].get<double>());
+	// verify_adjoint_expensive(*nl_problem, x, opt_args["solver"]["nonlinear"]["debug_fd_eps"].get<double>());
 }
 
 TEST_CASE("isosurface-inflator", "[test_adjoint]")
@@ -148,7 +148,7 @@ TEST_CASE("isosurface-inflator", "[test_adjoint]")
 	Eigen::VectorXd x = opt_args["parameters"][0]["initial"];
 
 	auto nl_problem = std::make_shared<AdjointNLProblem>(obj, variable_to_simulations, states, opt_args);
-	nl_problem->solution_changed(x);
+	// nl_problem->solution_changed(x);
 
 	verify_adjoint(*nl_problem, x, opt_args["solver"]["nonlinear"]["debug_fd_eps"].get<double>(), 1e-3);
 	// verify_adjoint_expensive(variable_to_simulations, *obj, state, x, opt_args["solver"]["nonlinear"]["debug_fd_eps"].get<double>());
