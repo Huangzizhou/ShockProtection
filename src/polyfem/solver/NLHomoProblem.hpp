@@ -43,6 +43,7 @@ namespace polyfem::solver
 		TVector full_to_reduced_grad(const TVector &full) const override;
 		TVector reduced_to_full(const TVector &reduced) const override;
 		TVector reduced_to_full_shape_derivative(const Eigen::MatrixXd &disp_grad, const TVector &adjoint_full) const;
+		Eigen::MatrixXd macro_full_to_reduced_grad(const Eigen::MatrixXd &full) const;
 
 		TVector reduced_to_extended(const TVector &reduced, bool homogeneous = false) const;
 		TVector extended_to_reduced(const TVector &extended) const;
@@ -79,7 +80,6 @@ namespace polyfem::solver
 		Eigen::MatrixXd constraint_grad() const;
 
 		TVector macro_full_to_reduced(const TVector &full) const;
-		Eigen::MatrixXd macro_full_to_reduced_grad(const Eigen::MatrixXd &full) const;
 		TVector macro_reduced_to_full(const TVector &reduced, bool homogeneous = false) const;
 
 		const State &state_;

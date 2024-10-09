@@ -286,6 +286,10 @@ namespace polyfem::solver
 			{
 				obj = std::make_shared<StressForm>(var2sim, *(states[args["state"]]), args);
 			}
+			else if (type == "homo_disp_grad")
+			{
+				obj = std::make_shared<HomogenizedDispGradForm>(var2sim, *(states[args["state"]]), args);
+			}
 			else if (type == "stress_norm")
 			{
 				obj = std::make_shared<StressNormForm>(var2sim, *(states[args["state"]]), args);
@@ -355,7 +359,7 @@ namespace polyfem::solver
 				obj = std::make_shared<ParametrizedProductForm>(CompositeParametrization(std::move(map_list)));
 			}
 			else
-				log_and_throw_adjoint_error("Objective not implemented!");
+				log_and_throw_adjoint_error("Objective \"{}\" not implemented!", type);
 
 			obj->set_weight(args["weight"]);
 			if (args["print_energy"].get<std::string>() != "")

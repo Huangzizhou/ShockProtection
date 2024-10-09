@@ -157,4 +157,48 @@ namespace polyfem::solver
 	{
 		log_and_throw_adjoint_error("[{}] Not differentiable!", name());
 	}
+
+	double HomogenizedDispGradForm::value_unweighted(const Eigen::VectorXd &x) const
+	{
+		return state_.diff_cached.disp_grad()(dimensions_[0], dimensions_[1]);
+	}
+	Eigen::MatrixXd HomogenizedDispGradForm::compute_reduced_adjoint_rhs(const Eigen::VectorXd &x, const State &state) const
+	{
+		if (&state != &state_)
+		{
+			if (!state.problem->is_time_dependent() && !state.lin_solver_cached) // nonlinear static solve only
+			{
+				return weight() * state.solve_data.nl_problem->full_to_reduced_grad(Eigen::VectorXd::Zero(state.ndof()));
+			}
+			else
+			{
+				return Eigen::MatrixXd::Zero(state.ndof(), state.diff_cached.size());
+			}
+		}
+
+		std::shared_ptr<NLHomoProblem> problem = std::dynamic_pointer_cast<NLHomoProblem>(state_.solve_data.nl_problem);
+		if (!problem)
+			log_and_throw_error("[{}] Only works in homogenization!", name());
+
+		Eigen::MatrixXd disp_grad;
+		disp_grad.setZero(state.mesh->dimension(), state.mesh->dimension());
+		disp_grad(dimensions_[0], dimensions_[1]) = 1;
+
+		Eigen::VectorXd rhs;
+		rhs.setZero(problem->reduced_size() + problem->macro_reduced_size());
+		rhs.tail(problem->macro_reduced_size()) = problem->macro_full_to_reduced_grad(utils::flatten(disp_grad));
+
+		return rhs;
+	}
+	void HomogenizedDispGradForm::compute_partial_gradient(const Eigen::VectorXd &x, Eigen::VectorXd &gradv) const
+	{
+		gradv.setZero(x.size());
+		const int dim = state_.mesh->dimension();
+		gradv = weight() * variable_to_simulations_.apply_parametrization_jacobian(ParameterType::MacroStrain, &state_, x, [this, dim]() {
+			Eigen::VectorXd term;
+			term.setZero(dim * dim);
+			term(dimensions_[0] * dim + dimensions_[1]) = 1;
+			return term;
+		});
+	}
 } // namespace polyfem::solver

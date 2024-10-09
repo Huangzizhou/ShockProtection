@@ -167,7 +167,7 @@ namespace polyfem::solver
 		assert(y.size() == dim);
 		Eigen::MatrixXd affine = y.asDiagonal();
 
-		adjoint_logger().info("mesh scale: {:.15e} {:.15e}", y(0), y(1));
+		adjoint_logger().debug("current mesh scale: {:.15e} {:.15e}", y(0), y(1));
 		
 		for (auto state : states_)
 		{

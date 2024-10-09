@@ -97,7 +97,7 @@ namespace
 
 TEST_CASE("isosurface-inflator-periodic", "[test_adjoint]")
 {
-	const std::string path = POLYFEM_DATA_DIR + std::string("/../differentiable/isosurface-inflator-periodic");
+	const std::string path = POLYFEM_DATA_DIR + std::string("/../tests/differentiable/isosurface-inflator-periodic");
 	json in_args;
 	load_json(path + "/state.json", in_args);
 
@@ -127,7 +127,7 @@ TEST_CASE("isosurface-inflator-periodic", "[test_adjoint]")
 
 TEST_CASE("isosurface-inflator", "[test_adjoint]")
 {
-	const std::string path = POLYFEM_DATA_DIR + std::string("/../differentiable/isosurface-inflator");
+	const std::string path = POLYFEM_DATA_DIR + std::string("/../tests/differentiable/isosurface-inflator");
 	json in_args;
 	load_json(path + "/state.json", in_args);
 

@@ -90,4 +90,23 @@ namespace polyfem::solver
 		std::set<int> interested_ids_;
 		const State &state_;
 	};
+
+	class HomogenizedDispGradForm : public AdjointForm
+	{
+	public:
+		HomogenizedDispGradForm(const VariableToSimulationGroup &variable_to_simulations, const State &state, const json &args) : AdjointForm(variable_to_simulations), state_(state)
+		{
+			dimensions_ = args["dimensions"].get<std::vector<int>>();
+		}
+
+		std::string name() const override { return "homo_disp_grad"; }
+
+		double value_unweighted(const Eigen::VectorXd &x) const override;
+		Eigen::MatrixXd compute_reduced_adjoint_rhs(const Eigen::VectorXd &x, const State &state) const override;
+		void compute_partial_gradient(const Eigen::VectorXd &x, Eigen::VectorXd &gradv) const override;
+
+	protected:
+		std::vector<int> dimensions_;
+		const State &state_;
+	};
 } // namespace polyfem::solver
