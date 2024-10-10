@@ -31,6 +31,24 @@ The code is only tested on Linux. To run the code:
     # Unit test
     ./tests/unit_tests "isosurface-inflator-periodic"
 
+The inflator code is used to map a vector of shape parameters to a periodic mesh of the microstructure cell, and compute the shape velocity of the shape parameters needed in the optimizations. The inflator code is called using terminal commands during the optimizations, since the cmake setup of CGAL (which is used by the inflator) may break the cmake of PolyFEM.
+
+Usage
+-------------
+
+To run a shape optimization and obtain the microstructure cell shape that corresponds to a specific target stress:
+
+    cd scripts/
+    python optimize.py 5000 \
+    ../inflator/data/patterns/2D/topologies/0105.obj \
+    --no_tile --strain 0.25 --n_samples 4
+
+where `5000` is the desired stress, the optimization will sample 4 strains from `10%` to `25%` and optimize the stress on those samples to match the desired stress.
+
+All 105 topologies used in the paper are in folder `inflator/data/patterns/2D/topologies/0105.obj`, one can provide a new `.obj` edge mesh to run the optimization on a custom cell topology. The edge mesh has to fit into the unit cube and be periodic in both directions.
+
+The above command creates a folder `result/0105_0.3_5000.0` and set up the JSON files needed to run PolyFEM.
+
 Documentation
 -------------
 

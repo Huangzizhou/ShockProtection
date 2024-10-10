@@ -5,8 +5,6 @@ from pathlib import Path
 marching_cube_res = 64
 internal_res = 1e-3
 
-perturbed_angle = 0
-
 def homogenized_yy_stress_error_obj(target_stress, n_shape_params):
     return {
         "type": "soft_constraint",
@@ -251,8 +249,8 @@ if __name__ == "__main__":
     parser.add_argument('--barrier', type=float, default=-1)
 
     parser.add_argument('--threads', type=int, default=16)
-    parser.add_argument('--tile', action='store_true')
-    parser.add_argument('--penalize_expansion', action='store_true')
+    parser.add_argument('--no_tile', action='store_true')
+    parser.add_argument('--no_penalize_expansion', action='store_true')
     args = parser.parse_args()
 
     if not os.path.isabs(args.wire_path):
@@ -261,19 +259,32 @@ if __name__ == "__main__":
         args.iso_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.iso_path)
     if not os.path.isabs(args.exe_path):
         args.exe_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.exe_path)
+    if not os.path.isabs(args.params):
+        args.params = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.params)
 
     target_stress = args.stress
     strain_sample = np.linspace(0.1, args.strain, args.n_samples)
+
+    print("Optimize stress at strains", strain_sample, "to reach target stress", target_stress)
     
     wire_path = args.wire_path
     symmetry = args.symmetry
-    tile = args.tile # optimize on 2x2 tiles
-    penalize_expansion = args.penalize_expansion
+    tile = not args.no_tile # optimize on 2x2 tiles
+    penalize_expansion = not args.no_penalize_expansion
+
+    if tile:
+        print("Tile the cell to 2x2 in simulations")
+    
+    if not os.path.exists(wire_path):
+        raise Exception("wire_path \"{}\" does not exist".format(wire_path))
+    if not os.path.exists(args.iso_path):
+        raise Exception("inflator executable \"{}\" does not exist".format(args.iso_path))
+    if not os.path.exists(args.exe_path):
+        raise Exception("inflator executable \"{}\" does not exist".format(args.exe_path))
 
     shape_param = []
     scaling_param = [1]
     t = subprocess.check_output(args.iso_path + " 2D_" + symmetry + " --defaultThickness 0.05 " + wire_path + " out.msh", shell=True)
-    print(t)
     t1 = t.decode('utf-8').split('\n')[1].split("\t")
     for token in t1:
         try:
@@ -283,12 +294,18 @@ if __name__ == "__main__":
 
     # generate initial shape parameters
     if os.path.exists(args.params):
-        params = np.loadtxt(args.params)
+        print("Initial guess for shape parameters provided!")
+        with open(args.params, 'r') as file:
+            lines = file.readlines()
+            params = lines[-1]
+            params = params[params.find(":")+1:-1]
+            params = params.split(' ')
+            params = np.array([float(e) for e in params if e], dtype=float)
         shape_param = params[1:].tolist()
         scaling_param = params[:1].tolist()
 
-    print("scale paramemters:", scaling_param)
-    print("shape paramemters:", shape_param)
+    print("Cell width:", scaling_param[0], "; cell height: 1.0")
+    print("Inflator params:", shape_param)
 
     t2 = t.decode('utf-8').split('\n')[2].split("\t")
     n_shape_param = []
@@ -298,11 +315,13 @@ if __name__ == "__main__":
         except ValueError:
             pass
 
-    print(n_shape_param)
     n_positional_params = n_shape_param[0]
     n_thickness_params = n_shape_param[1]
     n_blending_params = n_shape_param[2]
     n_scaling_params = 1
+    print("Number of node positional params:", n_positional_params)
+    print("Number of beam thickness params:", n_thickness_params)
+    print("Number of blending params:", n_blending_params)
 
     E = args.E
     nu = args.nu
@@ -315,9 +334,10 @@ if __name__ == "__main__":
         folder = os.path.join(folder, "no_contact")
     folder = os.path.join(folder, os.path.splitext(os.path.split(wire_path)[1])[0] + "_" + str(strain_sample[-1]) + "_" + str(target_stress))
     if os.path.exists(os.path.join(folder, "optimized-params.txt")):
-        print("Already succeeded!")
+        print("The optimized result already exists! Exit...")
         exit()
     elif os.path.exists(folder):
+        print("Clean existing folder " + folder)
         os.system("rm -r " + folder)
     Path(folder).mkdir(parents=True)
 
@@ -346,7 +366,7 @@ if __name__ == "__main__":
         outfile.write(json.dumps(opt_json, indent=4))
 
     os.chdir(folder)
-    print("run " + folder)
+    print("Run optimization and save results to \"" + folder + "\" ...")
     with open("log",'w') as outfile:
         subprocess.run([args.exe_path, 
                         "--max_threads", str(args.threads),
