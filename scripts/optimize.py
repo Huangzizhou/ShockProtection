@@ -259,7 +259,7 @@ if __name__ == "__main__":
         args.iso_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.iso_path)
     if not os.path.isabs(args.exe_path):
         args.exe_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.exe_path)
-    if not os.path.isabs(args.params):
+    if args.params and not os.path.isabs(args.params):
         args.params = os.path.join(os.path.dirname(os.path.realpath(__file__)), args.params)
 
     target_stress = args.stress
