@@ -18,10 +18,10 @@
             "grad_norm": 1e-7
         },
         "linear": {
-            "solver": "Eigen::PardisoLLT"
+            "solver": ["Eigen::PardisoLLT", "Eigen::AccelerateLLT", "Eigen::CholmodSupernodalLLT"]
         },
         "adjoint_linear": {
-            "solver": "Eigen::PardisoLDLT"
+            "solver": ["Eigen::PardisoLDLT", "Eigen::AccelerateLDLT", "Eigen::SimplicialLDLT"]
         }
     },
     "boundary_conditions": {
