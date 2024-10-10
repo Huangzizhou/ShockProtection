@@ -335,8 +335,30 @@
             "sdf-to-mesh",
             "periodic-mesh-tile",
             "mesh-affine",
-            "matrix-product"
+            "matrix-product",
+            "box-constraint-reparametrization"
         ]
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*",
+        "type_name": "box-constraint-reparametrization",
+        "type": "object",
+        "required": [
+            "bounds"
+        ],
+        "doc": "Reparametrize variable to fit into box constraints."
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/bounds",
+        "type": "list"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/bounds/*",
+        "type": "list"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*/bounds/*/*",
+        "type": "float"
     },
     {
         "pointer": "/variable_to_simulation/*/composition/*",
@@ -640,6 +662,28 @@
         "pointer": "/variable_to_simulation/*/composition/*/transformation/scale/*",
         "default": 0,
         "type": "float"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*",
+        "type_name": "periodic-mesh-tile",
+        "type": "object",
+        "required": [
+            "dimensions"
+        ],
+        "doc": "Append a list of constants at the end of the input vector"
+    },
+    {
+        "pointer": "/variable_to_simulation/*/composition/*",
+        "type_name": "mesh-affine",
+        "type": "object",
+        "required": [
+            "type",
+            "dimension"
+        ],
+        "optional": [
+            "transformation"
+        ],
+        "doc": "Append a list of constants at the end of the input vector"
     },
     {
         "pointer": "/variable_to_simulation/*/composition/*/dimensions",

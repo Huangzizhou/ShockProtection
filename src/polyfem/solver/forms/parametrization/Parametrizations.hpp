@@ -182,4 +182,33 @@ namespace polyfem::solver
 		const double start_val_;
 		const double dt_;
 	};
+
+	class MatrixProduct : public Parametrization
+	{
+	public:
+		MatrixProduct(const json &args);
+
+		int size(const int x_size) const override;
+		Eigen::VectorXd eval(const Eigen::VectorXd &x) const override;
+		Eigen::VectorXd apply_jacobian(const Eigen::VectorXd &grad, const Eigen::VectorXd &x) const override;
+	
+	private:
+		Eigen::MatrixXd mat;
+		bool left_mult;
+	};
+
+	class BoxConstraintReparametrization : public Parametrization
+	{
+	public:
+		BoxConstraintReparametrization(const json &args);
+
+		int size(const int x_size) const override;
+		Eigen::VectorXd eval(const Eigen::VectorXd &x) const override;
+		Eigen::VectorXd apply_jacobian(const Eigen::VectorXd &grad, const Eigen::VectorXd &x) const override;
+	private:
+		static double logistic(double x, double lower, double higher);
+		static double logistic_grad(double x, double lower, double higher);
+
+		Eigen::MatrixXd bounds;
+	};
 } // namespace polyfem::solver

@@ -3,6 +3,7 @@
 #include <polyfem/basis/ElementBases.hpp>
 #include <polyfem/utils/Logger.hpp>
 #include <polyfem/Common.hpp>
+#include <polyfem/utils/JSONUtils.hpp>
 #include <polyfem/utils/ElasticityUtils.hpp>
 
 namespace polyfem::solver
@@ -493,4 +494,92 @@ namespace polyfem::solver
 		return hess.transpose() * grad;
 	}
 
+	MatrixProduct::MatrixProduct(const json &args)
+	{
+		int rows = args["matrix"].size();
+		assert (args["matrix"][0].is_array());
+		int cols = args["matrix"][0].size();
+		
+		mat.setZero(rows, cols);
+		Eigen::VectorXd tmp;
+		for (int i = 0; i < rows; i++)
+		{
+			tmp = args["matrix"][i];
+			assert(tmp.size() == cols);
+			mat.row(i) = tmp;
+		}
+
+		left_mult = args["left_multiply"];
+	}
+	int MatrixProduct::size(const int x_size) const
+	{
+		if (left_mult)
+			return (x_size * mat.rows()) / mat.cols();
+		else
+			return (x_size * mat.cols()) / mat.rows();
+	}
+	Eigen::VectorXd MatrixProduct::eval(const Eigen::VectorXd &x) const
+	{
+		if (left_mult)
+		{
+			assert(x.size() % mat.cols() == 0);
+			Eigen::MatrixXd input = utils::unflatten(x, x.size() / mat.cols());
+			return utils::flatten(mat * input);
+		}
+		else
+		{
+			assert(x.size() % mat.rows() == 0);
+			Eigen::MatrixXd input = utils::unflatten(x, mat.rows());
+			return utils::flatten(input * mat);
+		}
+	}
+	Eigen::VectorXd MatrixProduct::apply_jacobian(const Eigen::VectorXd &grad, const Eigen::VectorXd &x) const
+	{
+		if (left_mult)
+		{
+			Eigen::MatrixXd grad_mat = utils::unflatten(grad, x.size() / mat.cols());
+			return utils::flatten(mat.transpose() * grad_mat);
+		}
+		else
+		{
+			Eigen::MatrixXd grad_mat = utils::unflatten(grad, mat.cols());
+			return utils::flatten(grad_mat * mat.transpose());
+		}
+	}
+
+	BoxConstraintReparametrization::BoxConstraintReparametrization(const json &args)
+	{
+		bounds = args["bounds"];
+		if (bounds.rows() != 2)
+			log_and_throw_adjoint_error("Invalid bounds size!");
+	}
+	int BoxConstraintReparametrization::size(const int x_size) const
+	{
+		return x_size;
+	}
+	Eigen::VectorXd BoxConstraintReparametrization::eval(const Eigen::VectorXd &x) const
+	{
+		Eigen::VectorXd y = x;
+		if (bounds.cols() != x.size())
+			log_and_throw_adjoint_error("Inconsistent input size, {} vs {}!", x.size(), bounds.cols());
+		for (int i = 0; i < x.size(); i++)
+			y(i) = logistic(x(i), bounds(0, i), bounds(1, i));
+		return y;
+	}
+	Eigen::VectorXd BoxConstraintReparametrization::apply_jacobian(const Eigen::VectorXd &grad, const Eigen::VectorXd &x) const
+	{
+		Eigen::VectorXd gradv = grad;
+		for (int i = 0; i < x.size(); i++)
+			gradv(i) *= logistic_grad(x(i), bounds(0, i), bounds(1, i));
+		return gradv;
+	}
+	double BoxConstraintReparametrization::logistic(double x, double lower, double higher)
+	{
+		return lower + (higher - lower) / (1. + exp(-x));
+	}
+	double BoxConstraintReparametrization::logistic_grad(double x, double lower, double higher)
+	{
+		const double e = exp(-x);
+		return (higher - lower) * e / (1 + e) / (1 + e);
+	}
 } // namespace polyfem::solver

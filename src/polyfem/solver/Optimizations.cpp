@@ -484,6 +484,14 @@ namespace polyfem::solver
 		{
 			map = std::make_shared<InsertConstantMap>(args["size"], args["value"], args["start"]);
 		}
+		else if (type == "matrix-product")
+		{
+			map = std::make_shared<MatrixProduct>(args);
+		}
+		else if (type == "box-constraint-reparametrization")
+		{
+			map = std::make_shared<BoxConstraintReparametrization>(args);
+		}
 		else if (type == "linear-filter")
 		{
 			map = std::make_shared<LinearFilter>(*(states[args["state"]]->mesh), args["radius"]);
