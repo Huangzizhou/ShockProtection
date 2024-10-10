@@ -47,7 +47,14 @@ where `5000` is the desired stress, the optimization will sample 4 strains from 
 
 All 105 topologies used in the paper are in folder `inflator/data/patterns/2D/topologies/0105.obj`, one can provide a new `.obj` edge mesh to run the optimization on a custom cell topology. The edge mesh has to fit into the unit cube and be periodic in both directions.
 
-The above command creates a folder `result/0105_0.3_5000.0` and set up the JSON files needed to run PolyFEM.
+The above command creates a folder `result/0105_0.25_5000.0` and set up the JSON files needed to run PolyFEM. Once the optimization finishes successfully, one can further optimize the cell shape for wider flat region by
+
+    python optimize.py 5000 \
+    ../inflator/data/patterns/2D/topologies/0105.obj \
+    --no_tile --strain 0.3 --n_samples 5 \
+    --params ../result/0105_0.25_5000.0/sol.txt 
+
+which adds one more sample strain, and uses the previous optimized shape parameters as a starting point.
 
 Documentation
 -------------
