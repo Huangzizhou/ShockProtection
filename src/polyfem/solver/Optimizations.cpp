@@ -558,18 +558,6 @@ namespace polyfem::solver
 
 		json in_args = args;
 		in_args["solver"]["max_threads"] = max_threads;
-		if (!args.contains("output") || !args["output"].contains("log") || !args["output"]["log"].contains("level"))
-		{
-			const json tmp = R"({
-					"output": {
-						"log": {
-							"level": "error"
-						}
-					}
-				})"_json;
-
-			in_args.merge_patch(tmp);
-		}
 
 		state->optimization_enabled = level;
 		state->init(in_args, true);
