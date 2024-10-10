@@ -147,17 +147,35 @@ namespace polyfem
 			al_form->enable();
 			lagr_form->enable();
 
-			const double initial_weight = args["solver"]["augmented_lagrangian"]["initial_weight"];
+			double initial_weight = args["solver"]["augmented_lagrangian"]["initial_weight"];
 			const double max_weight = args["solver"]["augmented_lagrangian"]["max_weight"];
 			const double eta_tol = args["solver"]["augmented_lagrangian"]["eta"];
 			const double scaling = args["solver"]["augmented_lagrangian"]["scaling"];
 			const double error_tol = args["solver"]["augmented_lagrangian"]["error"];
-			double al_weight = initial_weight;
 
 			Eigen::VectorXd tmp_sol = homo_problem->extended_to_reduced(extended_sol);
 			const Eigen::VectorXd initial_sol = tmp_sol;
 			const double initial_error = al_form->compute_error(extended_sol);
 			double current_error = initial_error;
+
+			// adjust the initial AL weight so that the gradient at the initial_sol pushes the values to the target
+			do {
+				al_form->set_weight(initial_weight);
+				Eigen::VectorXd tmp_grad;
+				homo_problem->gradient(tmp_sol, tmp_grad);
+				tmp_grad = homo_problem->reduced_to_extended(tmp_grad)(al_indices);
+				if (initial_weight < max_weight && (tmp_grad.array() * (extended_sol(al_indices).array() - al_values.array())).minCoeff() < 0)
+				{
+					initial_weight = std::min(scaling * initial_weight, max_weight);
+					logger().warn("Initial weight too small, increase to {}; grad {}, error {}", initial_weight, tmp_grad.transpose(), (extended_sol(al_indices).array() - al_values.array()).eval().matrix().transpose());
+				}
+				else
+				{
+					logger().debug("Initial weight {} good; grad {}, error {}", initial_weight, tmp_grad.transpose(), (extended_sol(al_indices).array() - al_values.array()).eval().matrix().transpose());
+					break;
+				}
+			} while (true);
+			double al_weight = initial_weight;
 
 			// try to enforce fixed values on macro strain
 			extended_sol(al_indices) = al_values;
