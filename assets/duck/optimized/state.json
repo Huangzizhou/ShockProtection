@@ -1,0 +1,192 @@
+{
+    "space": {
+        "discr_order": [
+            {
+                "id": 1,
+                "order": 2
+            },
+            {
+                "id": 2,
+                "order": 2
+            },
+            {
+                "id": 3,
+                "order": 1
+            },
+            {
+                "id": 4,
+                "order": 1
+            },
+            {
+                "id": 5,
+                "order": 1
+            }
+        ],
+        "advanced": {
+            "quadrature_order": 5
+        }
+    },
+    "time": {
+        "tend": 4,
+        "dt": 0.002,
+        "integrator": {
+            "type": "BDF",
+            "steps": 1
+        }
+    },
+    "geometry": [
+        {
+            "mesh": "duck_linear.obj",
+            "enabled": true,
+            "volume_selection": "duck-ids.txt",
+            "surface_selection": 1,
+            "transformation": {
+                "rotation": 160,
+                "scale": 2e-3,
+                "translation": [0.77, 1.18]
+            }
+        },
+        {
+            "mesh": "full-0105.obj",
+            "enabled": true,
+            "volume_selection": 3,
+            "surface_selection": 3,
+            "transformation": {
+                "rotation": 160,
+                "scale": 1,
+                "translation": [0.77, 1.18]
+            }
+        },
+        {
+            "mesh": "rigid.obj",
+            "enabled": false,
+            "volume_selection": 5,
+            "surface_selection": 5,
+            "transformation": {
+                "rotation": 160,
+                "scale": 1,
+                "translation": [0.77, 1.18]
+            }
+        },
+        {
+            "mesh": "slope.obj",
+            "enabled": true,
+            "is_obstacle": true,
+            "volume_selection": 4,
+            "surface_selection": 4
+        }
+    ],
+    "contact": {
+        "enabled": true,
+        "use_convergent_formulation": true,
+        "friction_coefficient": 1
+    },
+    "boundary_conditions": {
+        "dirichlet_boundary": [
+            {
+                "id": 4,
+                "value": [
+                    0,
+                    0
+                ]
+            }
+        ],
+        "rhs": [
+            0,
+            9.8
+        ]
+    },
+    "initial_conditions": {
+        "velocity": [
+        ]
+    },
+    "materials":
+    [
+        {
+            "id": 1,
+            "E": 1e7,
+            "nu": 0.45,
+            "rho": 20,
+            "phi": 0.5,
+            "psi": 0.5,
+            "type": "NeoHookean"
+        },
+        {
+            "id": 2,
+            "E": 1e7,
+            "nu": 0.45,
+            "rho": 20,
+            "phi": 0.5,
+            "psi": 0.5,
+            "type": "NeoHookean"
+        },
+        {
+            "id": 3,
+            "E": 1e7,
+            "nu": 0.45,
+            "rho": 20,
+            "phi": 0.5,
+            "psi": 0.5,
+            "type": "NeoHookean"
+        },
+        {
+            "id": 4,
+            "E": 1e7,
+            "nu": 0.45,
+            "rho": 20,
+            "phi": 0.5,
+            "psi": 0.5,
+            "type": "NeoHookean"
+        },
+        {
+            "id": 5,
+            "E": 1e8,
+            "nu": 0.45,
+            "rho": 20,
+            "phi": 0.5,
+            "psi": 0.5,
+            "type": "NeoHookean"
+        }
+    ],
+    "solver": {
+        "linear": {
+            "solver": "Eigen::PardisoLDLT"
+        },
+        "contact": {
+            "barrier_stiffness": 1e9
+        },
+        "nonlinear": {
+            "Newton": {
+                "use_psd_projection": true
+            },
+            "advanced": {
+                "f_delta": 1e-13,
+                "f_delta_step_tol": 10
+            },
+            "grad_norm": 5e-03,
+            "max_iterations": 200,
+            "allow_out_of_iterations": true
+        }
+    },
+    "output": {
+        "directory": "result",
+        "log": {
+            "level": "info"
+        },
+        "paraview": {
+            "skip_frame": 2,
+            "surface": false,
+            "volume": true,
+            "options": {
+                "use_hdf5": true,
+                "velocity": false,
+                "acceleration": false,
+                "tensor_values": false,
+                "body_ids": true,
+                "material": false,
+                "contact_forces": false,
+                "friction_forces": false
+            }
+        }
+    }
+}

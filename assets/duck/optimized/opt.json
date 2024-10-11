@@ -1,0 +1,61 @@
+{
+    "variable_to_simulation": [
+    ],
+    "parameters": [
+    ],
+    "output": {
+        "save_frequency": 1,
+        "log": {
+            "level": "trace"
+        }
+    },
+    "compute_objective": true,
+    "solver": {
+        "nonlinear": {}
+    },
+    "functionals": [
+        {
+            "type": "transient_integral",
+            "state": 0,
+            "print_per_step_energy": true,
+            "static_objective": {
+                "type": "max_stress",
+                "state": 0,
+                "volume_selection": [
+                    1, 2
+                ]
+            }
+        },
+        {
+            "type": "transient_integral",
+            "state": 0,
+            "print_per_step_energy": true,
+            "static_objective": {
+                "type": "stress_norm",
+                "power": 8,
+                "state": 0,
+                "volume_selection": [
+                    1, 2
+                ]
+            }
+        },
+        {
+            "type": "transient_integral",
+            "state": 0,
+            "print_per_step_energy": true,
+            "static_objective": {
+                "type": "stress_norm",
+                "power": 2,
+                "state": 0,
+                "volume_selection": [
+                    1, 2
+                ]
+            }
+        }
+    ],
+    "states": [
+        {
+            "path": "state.json"
+        }
+    ]
+}
