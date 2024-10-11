@@ -59,7 +59,9 @@ jobs:
           cd inflator
           mkdir -p build
           cd build
-          cmake .. \
+          cmake
+            -DLIBIGL_WITH_OPENGL=OFF \
+            .. \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} \
             -DCMAKE_CXX_FLAGS_DEBUGNOSYMBOLS=""
