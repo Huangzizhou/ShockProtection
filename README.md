@@ -56,6 +56,8 @@ The above command creates a folder `result/0105_0.25_5000.0` and set up the JSON
 
 which adds one more sample strain, and uses the previous optimized shape parameters as a starting point.
 
+Note that in the paper, we run simulations on a 2x2 periodic tile of the cell, which takes significantly more time to simulate but produces more accurate results. To simulate with 2x2 tiles in the optimization, remove `--no_tile` from above commands.
+
 Documentation
 -------------
 
