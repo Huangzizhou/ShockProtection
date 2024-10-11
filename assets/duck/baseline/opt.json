@@ -11,6 +11,7 @@
     },
     "compute_objective": true,
     "solver": {
+        "max_threads": 16,
         "nonlinear": {}
     },
     "functionals": [

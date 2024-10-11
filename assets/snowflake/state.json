@@ -1,0 +1,127 @@
+{
+    "space": {
+        "discr_order": 1,
+        "advanced": {
+            "quadrature_order": 5
+        }
+    },
+    "time": {
+        "tend": 2,
+        "dt": 0.001,
+        "integrator": {
+            "type": "BDF",
+            "steps": 1
+        }
+    },
+    "geometry": [
+        {
+            "mesh": "tiled.obj",
+            "enabled": true,
+            "volume_selection": 1,
+            "surface_selection": {
+                "threshold": 0.0001
+            }
+        },
+        {
+            "mesh": "snowflake03.msh",
+            "enabled": true,
+            "volume_selection": 3,
+            "surface_selection": 10,
+            "transformation": {
+                "scale": 1,
+                "translation": [
+                    0.3,
+                    1.2
+                ]
+            }
+        }
+    ],
+    "contact": {
+        "enabled": true,
+        "use_convergent_formulation": true,
+        "friction_coefficient": 1
+    },
+    "boundary_conditions": {
+        "dirichlet_boundary": [
+            {
+                "id": 2,
+                "value": [
+                    0,
+                    0
+                ],
+                "dimension": [
+                    true,
+                    true
+                ]
+            }
+        ],
+        "rhs": [
+            0,
+            9.8
+        ]
+    },
+    "initial_conditions": {
+        "velocity": [
+            {
+                "value": [
+                    1,
+                    -3
+                ],
+                "id": 3
+            }
+        ]
+    },
+    "materials": [
+        {
+            "id": 1,
+            "E": 1000000.0,
+            "nu": 0.3,
+            "rho": 10,
+            "type": "NeoHookean"
+        },
+        {
+            "id": 3,
+            "E": 100000000.0,
+            "nu": 0.3,
+            "rho": 200,
+            "type": "NeoHookean"
+        }
+    ],
+    "solver": {
+        "max_threads": 16,
+        "linear": {
+            "solver": "Eigen::PardisoLLT"
+        },
+        "nonlinear": {
+            "advanced": {
+                "f_delta": 1e-11,
+                "f_delta_step_tol": 5
+            },
+            "grad_norm": 1e-02,
+            "max_iterations": 500,
+            "allow_out_of_iterations": true
+        },
+        "contact": {
+            "barrier_stiffness": 1e9
+        }
+    },
+    "output": {
+        "directory": "result",
+        "log": {
+            "level": "info"
+        },
+        "paraview": {
+            "skip_frame": 5,
+            "surface": true,
+            "volume": true,
+            "options": {
+                "use_hdf5": true,
+                "velocity": false,
+                "acceleration": false,
+                "tensor_values": false,
+                "body_ids": true,
+                "material": true
+            }
+        }
+    }
+}

@@ -149,6 +149,7 @@
         }
     ],
     "solver": {
+        "max_threads": 16,
         "linear": {
             "solver": "Eigen::PardisoLDLT"
         },
