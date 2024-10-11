@@ -37,6 +37,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get -o Acquire::Retries=3 install ccache
+          sudo apt-get install libmpfr-dev libmpfr-doc libmpfr4 libmpfr4-dbg
           echo 'CACHE_PATH=~/.cache/ccache' >> "$GITHUB_ENV"
 
       - name: Cache Build
