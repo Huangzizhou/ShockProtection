@@ -245,7 +245,7 @@ if __name__ == "__main__":
     parser.add_argument('--E', type=float, default=1e6)
     parser.add_argument('--nu', type=float, default=0.3)
     parser.add_argument('--no_contact', action='store_true')
-    parser.add_argument('--dhat', type=float, default=1e-3)
+    parser.add_argument('--dhat', type=float, default=5e-4)
     parser.add_argument('--barrier', type=float, default=-1)
 
     parser.add_argument('--threads', type=int, default=16)
@@ -327,7 +327,7 @@ if __name__ == "__main__":
     nu = args.nu
     contact = not args.no_contact
     dhat = args.dhat
-    barrier = E if args.barrier <= 0 else args.barrier
+    barrier = 100 * E if args.barrier <= 0 else args.barrier
 
     folder = "../result/"
     if args.no_contact:

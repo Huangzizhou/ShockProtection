@@ -63,6 +63,7 @@
             "Newton": {
                 "use_psd_projection": false,
                 "reg_weight_inc": 100,
+                "reg_weight_max": 1e16,
                 "use_psd_projection_in_regularized": false
             },
             "advanced": {
