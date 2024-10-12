@@ -135,7 +135,8 @@ jobs:
           cmake .. \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DCMAKE_BUILD_TYPE=${{ matrix.config }} \
-            -DCMAKE_CXX_FLAGS_DEBUGNOSYMBOLS=""
+            -DCMAKE_CXX_FLAGS_DEBUGNOSYMBOLS="" \
+            -DLIBIGL_WITH_OPENGL=OFF
 
       - name: Build-inflator
         run: cd inflator/build; make -j2; ccache --show-stats
