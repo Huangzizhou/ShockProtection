@@ -10,7 +10,7 @@ A repository of the data and code used in our work, ["Optimized shock-protecting
 Compilation
 -----------
 
-The code is tested on Linux and Mac (including Apple Silicon). To run the code:
+The code is tested on Linux and Mac (both Intel and Apple Silicon). To run the code:
 
     git clone --recurse-submodules git@github.com:Huangzizhou/ShockProtection.git
 
