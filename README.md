@@ -4,7 +4,7 @@
 <a href="https://cims.nyu.edu/~zh1476/research/shock.html"><img alt="shock" src="https://cims.nyu.edu/~zh1476/assets/img/research/shock/website-teaser.png" width="80%"></a>
 </h1><br>
 
-A repository of the data and code used in our work, ["Optimized shock-protecting microstructures" [Huang et al. 2024]](https://cims.nyu.edu/~zh1476/research/shock.html).
+A repository of the data and code used in our work, ["Optimized shock-protecting microstructures" [Huang et al. 2024]](https://huangzizhou.github.io/research/shock.html).
 
 
 Compilation
